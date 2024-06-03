@@ -1,0 +1,165 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: azure-devops-ocp-agent-deployment-template
+  annotations:
+    description: "Azure DevOps Agent Deployment - First ensure you have built the image with the Build Template"
+    tags: "azure-agent"
+    iconClass: "icon-dotnet"
+parameters:
+- description: Namespace
+  name: NAMESPACE
+  required: true
+- description: Image to use
+  name: IMAGE
+  required: false
+  value: "azure-devops-ocp-agent:latest"
+- description: CPU Limit
+  name: CPU_LIMIT
+  required: false
+  value: "500m"
+- description: Memory limit
+  name: MEMORY_LIMIT
+  required: false
+  value: "500Mi"
+- description: Azure DevOps instance
+  name: AZP_URL
+  required: true  
+- description: Azure DevOps Pool name
+  name: AZP_POOL
+  required: true
+  value: ""
+- description: Azure DevOps Agent Personal Access Token
+  name: AZP_TOKEN
+  required: true
+- description: Azure Agent name
+  name: AZP_AGENT_NAME
+  required: true
+  value: "my-ocp-agent"
+- description: OpenShift Service Account
+  name: AZP_AGENT_SA
+  required: true
+  value: "azure-agent-sa"
+objects:
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: "${AZP_AGENT_SA}"
+    namespace: "${NAMESPACE}"
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    name: ${AZP_AGENT_SA}-edit-role
+    namespace: "${NAMESPACE}"
+  roleRef:
+    name: "edit"
+    apiGroup: ""
+    kind: ClusterRole
+  subjects:
+  - kind: ServiceAccount
+    name: "${AZP_AGENT_SA}"
+- apiVersion: v1
+  stringData:
+    AZP_TOKEN: ${AZP_TOKEN}
+  kind: Secret
+  metadata:
+    name: azdevops-secret
+    namespace: "${NAMESPACE}"
+  type: Opaque
+- apiVersion: v1
+  data:
+    AZP_URL: ${AZP_URL}
+    AZP_POOL: ${AZP_POOL}
+    AZP_AGENT_NAME: ${AZP_AGENT_NAME}
+  kind: ConfigMap
+  metadata:
+    name: azdevops-cm
+    namespace: "${NAMESPACE}"
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: azdevops-deployment
+    namespace: "${NAMESPACE}"
+    labels:
+      app: azdevops-agent
+    annotations:
+      image.openshift.io/triggers: >-
+        [{"from":{"kind":"ImageStreamTag","name":"azure-devops-ocp-agent:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"azure-devops-ocp-agent\")].image"}]
+  spec:
+    replicas: 1 
+    selector:
+      matchLabels:
+        app: azdevops-agent
+    template:
+      metadata:
+        labels:
+          app: azdevops-agent
+      spec:
+        serviceAccountName: "${AZP_AGENT_SA}"
+        serviceAccount: "${AZP_AGENT_SA}"
+        securityContext:
+          runAsUser: 1000
+        containers:
+        - name: azure-devops-ocp-agent
+          image: ${IMAGE}
+          imagePullPolicy: Always
+          resources:
+            requests:
+              ephemeral-storage: "2Gi"
+            limits:
+              ephemeral-storage: "5Gi"
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MY_POD_SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: AZP_AGENT_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: AZP_AGENT_NAME
+                  name: azdevops-cm
+            - name: AZP_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: AZP_URL
+                  name: azdevops-cm
+            - name: AZP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: azdevops-secret
+                  key: AZP_TOKEN
+            - name: AZP_POOL
+              valueFrom:
+                configMapKeyRef:
+                  name: azdevops-cm
+                  key: AZP_POOL
+          resources:
+            limits: 
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - '-c'
+                  - >-
+                    /azp/agent/bin/Agent.Listener remove --auth PAT --token
+                    $AZP_TOKEN
+        triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+            - azure-devops-ocp-agent
+            from:
+              kind: ImageStreamTag
+              name: ${IMAGE}
