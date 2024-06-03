@@ -3,7 +3,7 @@ FROM registry.access.redhat.com/ubi8/podman:latest
 # These should be overridden in template deployment to interact with Azure service
 ENV AZP_URL=https://dev.azure.com/Kyndryl-Sandbox \
     AZP_POOL=openshift-agent \
-    AZP_TOKEN=23drcb4x543x4gaoalpiujjxiscrkzsfuzgdmz6n7clqobdw72oq \
+    AZP_TOKEN=<your_token> \
     AZP_AGENT_NAME=myagent
 # If a working directory was specified, create that directory
 ENV AZP_WORK=/_work
