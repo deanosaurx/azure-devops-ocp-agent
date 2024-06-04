@@ -49,6 +49,11 @@ objects:
       to:
         kind: ImageStreamTag
         name: azure-devops-ocp-agent:latest
+    resources:
+      requests:
+        ephemeral-storage: "1Gi"
+      limits:
+        ephemeral-storage: "2Gi"
     strategy:
       dockerStrategy:
         dockerfilePath: Dockerfile
