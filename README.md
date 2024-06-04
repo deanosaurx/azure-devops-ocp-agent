@@ -31,10 +31,10 @@ oc create -f https://raw.githubusercontent.com/bfarr-rh/azure-devops-ocp-agent/m
 ```` 
 - description: OpenShift client binary version to install
   name: OPENSHIFT_VERSION
-  value: "4.9.7"
+  value: "4.15.12"
 - description: Azure agent install version
   name: AZP_AGENT_VERSION
-  value: "2.187.2"
+  value: "3.230.0"
 ```` 
 
 # Deploying & Running the agent
