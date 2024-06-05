@@ -51,9 +51,9 @@ objects:
         name: azure-devops-ocp-agent:latest
     resources:
       requests:
-        ephemeral-storage: "1Gi"
-      limits:
         ephemeral-storage: "2Gi"
+      limits:
+        ephemeral-storage: "3Gi"
     strategy:
       dockerStrategy:
         dockerfilePath: Dockerfile
