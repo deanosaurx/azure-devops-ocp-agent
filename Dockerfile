@@ -20,7 +20,7 @@ USER root
 
 # Setup for azure and tools
 RUN dnf upgrade -y && \
-    dnf install -y --setopt=tsflags=nodocs git skopeo podman-docker --exclude container-selinux && \
+    dnf install -y --setopt=tsflags=nodocs git origin-clients skopeo podman-docker --exclude container-selinux && \
     dnf clean all && \
     chown -R podman:0 /home/podman && \
     chmod -R 775 /home/podman && \
