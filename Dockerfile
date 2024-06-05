@@ -1,9 +1,9 @@
 FROM registry.access.redhat.com/ubi8/podman:latest 
 
 # These should be overridden in template deployment to interact with Azure service
-ENV AZP_URL="" \
-    AZP_POOL="" \
-    AZP_TOKEN="" \
+ENV AZP_URL=test \
+    AZP_POOL=test \
+    AZP_TOKEN=test \
     AZP_AGENT_NAME=myagent
 # If a working directory was specified, create that directory
 ENV AZP_WORK=/_work
