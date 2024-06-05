@@ -46,9 +46,9 @@ RUN curl  ${OPENSHIFT_4_CLIENT_BINARY_URL} > ${OPENSHIFT_BINARY_FILE} && \
     chmod +x /usr/local/bin/oc
 
 # Download and extract the agent package
-RUN curl https://vstsagentpackage.azureedge.net/agent/$AZP_AGENT_VERSION/vsts-agent-osx-arm64-$AZP_AGENT_VERSION.tar.gz > vsts-agent-osx-arm64-$AZP_AGENT_VERSION.tar.gz && \
-    tar zxvf vsts-agent-osx-arm64-$AZP_AGENT_VERSION.tar.gz && \
-    rm -rf vsts-agent-osx-arm64-$AZP_AGENT_VERSION.tar.gz 
+RUN curl https://vstsagentpackage.azureedge.net/agent/$AZP_AGENT_VERSION/vsts-agent-linux-arm64-$AZP_AGENT_VERSION.tar.gz > vsts-agent-linux-arm64-$AZP_AGENT_VERSION.tar.gz && \
+    tar zxvf vsts-agent-linux-arm64-$AZP_AGENT_VERSION.tar.gz && \
+    rm -rf vsts-agent-linux-arm64-$AZP_AGENT_VERSION.tar.gz 
 
 # Install the agent software
 RUN /bin/bash -c 'chmod +x ./bin/installdependencies.sh' && \
