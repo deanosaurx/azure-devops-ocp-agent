@@ -9,7 +9,7 @@ ENV AZP_URL=https://dev.azure.com/Kyndryl-Sandbox \
 ENV AZP_WORK=/_work
 ARG AZP_AGENT_VERSION=3.230.0
 ARG OPENSHIFT_VERSION=4.15.12
-ENV OPENSHIFT_BINARY_FILE="openshift-install-mac-arm64-${OPENSHIFT_VERSION}.tar.gz"
+ENV OPENSHIFT_BINARY_FILE="openshift-client-mac-arm64-${OPENSHIFT_VERSION}.tar.gz"
 ENV OPENSHIFT_4_CLIENT_BINARY_URL=https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OPENSHIFT_VERSION}/${OPENSHIFT_BINARY_FILE}
 ENV _BUILDAH_STARTED_IN_USERNS="" \
     BUILDAH_ISOLATION=chroot \
@@ -20,7 +20,7 @@ USER root
 
 # Setup for azure and tools
 RUN dnf upgrade -y && \
-    dnf install -y --setopt=tsflags=nodocs git origin-clients skopeo podman-docker --exclude container-selinux && \
+    dnf install -y --setopt=tsflags=nodocs git skopeo podman-docker --exclude container-selinux && \
     dnf clean all && \
     chown -R podman:0 /home/podman && \
     chmod -R 775 /home/podman && \
