@@ -1,15 +1,15 @@
 FROM registry.access.redhat.com/ubi8/podman:latest 
 
 # These should be overridden in template deployment to interact with Azure service
-ENV AZP_URL=https://dev.azure.com/Kyndryl-Sandbox \
-    AZP_POOL=openshift-agent \
-    AZP_TOKEN=23drcb4x543x4gaoalpiujjxiscrkzsfuzgdmz6n7clqobdw72oq \
+ENV AZP_URL="" \
+    AZP_POOL="" \
+    AZP_TOKEN="" \
     AZP_AGENT_NAME=myagent
 # If a working directory was specified, create that directory
 ENV AZP_WORK=/_work
 ARG AZP_AGENT_VERSION=3.230.0
 ARG OPENSHIFT_VERSION=4.15.12
-ENV OPENSHIFT_BINARY_FILE="openshift-client-linux-arm64-${OPENSHIFT_VERSION}.tar.gz"
+ENV OPENSHIFT_BINARY_FILE="openshift-install-mac-arm64-${OPENSHIFT_VERSION}.tar.gz"
 ENV OPENSHIFT_4_CLIENT_BINARY_URL=https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OPENSHIFT_VERSION}/${OPENSHIFT_BINARY_FILE}
 ENV _BUILDAH_STARTED_IN_USERNS="" \
     BUILDAH_ISOLATION=chroot \
@@ -46,9 +46,9 @@ RUN curl  ${OPENSHIFT_4_CLIENT_BINARY_URL} > ${OPENSHIFT_BINARY_FILE} && \
     chmod +x /usr/local/bin/oc
 
 # Download and extract the agent package
-RUN curl https://vstsagentpackage.azureedge.net/agent/$AZP_AGENT_VERSION/vsts-agent-linux-arm64-$AZP_AGENT_VERSION.tar.gz > vsts-agent-linux-arm64-$AZP_AGENT_VERSION.tar.gz && \
-    tar zxvf vsts-agent-linux-arm64-$AZP_AGENT_VERSION.tar.gz && \
-    rm -rf vsts-agent-linux-arm64-$AZP_AGENT_VERSION.tar.gz 
+RUN curl https://vstsagentpackage.azureedge.net/agent/$AZP_AGENT_VERSION/vsts-agent-osx-arm64-$AZP_AGENT_VERSION.tar.gz > vsts-agent-osx-arm64-$AZP_AGENT_VERSION.tar.gz && \
+    tar zxvf vsts-agent-osx-arm64-$AZP_AGENT_VERSION.tar.gz && \
+    rm -rf vsts-agent-osx-arm64-$AZP_AGENT_VERSION.tar.gz 
 
 # Install the agent software
 RUN /bin/bash -c 'chmod +x ./bin/installdependencies.sh' && \
